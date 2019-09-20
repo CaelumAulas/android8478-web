@@ -17,18 +17,20 @@ import android.widget.ImageView
 import android.widget.Toast
 import br.com.caelum.twittelumappweb.R
 import br.com.caelum.twittelumappweb.decodificaParaBase64
+import br.com.caelum.twittelumappweb.gps.GPS
 import br.com.caelum.twittelumappweb.modelo.Tweet
 import br.com.caelum.twittelumappweb.viewmodel.TweetViewModel
-import br.com.caelum.twittelumappweb.viewmodel.ViewModelFactory
 import kotlinx.android.synthetic.main.activity_tweet.*
+import org.koin.android.viewmodel.ext.android.viewModel
 import java.io.File
 
 
 class TweetActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: TweetViewModel
+    private val viewModel: TweetViewModel by viewModel()
     private var localFoto: String? = null
 
+    private lateinit var gps: GPS
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,8 +38,10 @@ class TweetActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        viewModel = ViewModelProviders.of(this, ViewModelFactory).get(TweetViewModel::class.java)
 
+
+        gps = GPS(this)
+        gps.fazBusca()
     }
 
 
@@ -104,7 +108,9 @@ class TweetActivity : AppCompatActivity() {
 
         val foto: String? = tweet_foto.tag as String?
 
-        return Tweet(mensagemDoTweet, foto)
+        val (latitude, longitude) = gps.getCoordenadas()
+
+        return Tweet(mensagemDoTweet, foto, latitude, longitude)
     }
 
 
